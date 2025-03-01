@@ -1,0 +1,59 @@
+@using MvcDB.Web.Data
+@inject ApplicationDbContext DbContext
+
+<PageTitle>Teams</PageTitle>
+<!-- Search input field for filtering -->
+<div>
+    <input type="text" @bind="searchText" placeholder="Search by Team Name, City, or Province" class="form-control" />
+    <button class="btn btn-primary mt-2" @onclick="FilterTeams">Search</button>
+</div>
+
+<!-- QuickGrid displaying team data -->
+<QuickGrid Items="@filteredTeams.AsQueryable()" TItem="MvcDB.Web.Models.Team" TGridItem="MvcDB.Web.Models.Team">
+    <PropertyColumn Property="@(_ => _.TeamName)" Sortable="true" Title="Team Name" />
+    <PropertyColumn Property="@(_ => _.City)" Sortable="true" Title="City" />
+    <PropertyColumn Property="@(_ => _.Province)" Sortable="true" Title="Province" />
+    <PropertyColumn Property="@(_ => _.Country)" Sortable="true" Title="Country" />
+    <!-- Action Buttons -->
+    <!-- NOTE: I couldn't get the Actions Buttons here working -->
+    @* <TemplateColumn Title="Actions">
+        <Template>
+            @if (context is MvcDB.Web.Models.Team team)
+            {
+                <a href="@($"Teams/Edit/{team.TeamName}")" class="btn btn-warning btn-sm">Edit</a>
+                <a href="@($"Teams/Details/{team.TeamName}")" class="btn btn-info btn-sm">Details</a>
+                <a href="@($"Teams/Delete/{team.TeamName}")" class="btn btn-danger btn-sm">Delete</a>
+            }
+        </Template>
+    </TemplateColumn> *@
+</QuickGrid>
+
+@code {
+    private List<Team> teams;
+    private List<Team> filteredTeams;
+    private string searchText = string.Empty;
+
+    // Fetch team data on component initialization
+    protected override async Task OnInitializedAsync()
+    {
+        teams = await Team.GetTeams(DbContext);
+        filteredTeams = teams;
+    }
+
+    // Filter teams based on search text
+    private void FilterTeams()
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredTeams = teams; // No search text, show all
+        }
+        else
+        {
+            filteredTeams = teams.Where(t =>
+                (t.TeamName != null && t.TeamName.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (t.City != null && t.City.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (t.Province != null && t.Province.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
+    }
+}

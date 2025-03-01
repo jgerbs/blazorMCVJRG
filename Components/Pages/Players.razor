@@ -1,0 +1,50 @@
+@using MvcDB.Web.Data
+@inject ApplicationDbContext DbContext
+
+<PageTitle>Players</PageTitle>
+
+<!-- Search input field for filtering -->
+<div>
+    <input type="text" @bind="searchText" placeholder="Search by First Name, Last Name, or Team Name" class="form-control" />
+    <button class="btn btn-primary mt-2" @onclick="FilterPlayers">Search</button>
+</div>
+
+<!-- QuickGrid displaying player data -->
+<QuickGrid Items="@filteredPlayers.AsQueryable()" TItem="MvcDB.Web.Models.Player" TGridItem="MvcDB.Web.Models.Player">
+    <PropertyColumn Property="@(_ => _.PlayerId)" Sortable="true" Title="Player ID" />
+    <PropertyColumn Property="@(_ => _.JerseyNumber)" Sortable="true" Title="Jersey Number" />
+    <PropertyColumn Property="@(_ => _.FirstName)" Sortable="true" Title="First Name" />
+    <PropertyColumn Property="@(_ => _.LastName)" Sortable="true" Title="Last Name" />
+    <PropertyColumn Property="@(_ => _.Position)" Sortable="true" Title="Position" />
+    <PropertyColumn Property="@(_ => _.TeamName)" Sortable="true" Title="Team Name" />
+</QuickGrid>
+
+@code {
+    private List<Player> players;
+    private List<Player> filteredPlayers;
+    private string searchText = string.Empty;
+
+    // Fetch player data on component initialization
+    protected override async Task OnInitializedAsync()
+    {
+        players = await Player.GetPlayers(DbContext);
+        filteredPlayers = players;
+    }
+
+    // Filter players based on search text
+    private void FilterPlayers()
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredPlayers = players; // No search text, show all
+        }
+        else
+        {
+            filteredPlayers = players.Where(p =>
+                (p.FirstName != null && p.FirstName.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (p.LastName != null && p.LastName.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                (p.TeamName != null && p.TeamName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
+    }
+}

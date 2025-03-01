@@ -1,0 +1,14 @@
+@model IEnumerable<MvcDB.Web.Models.Player>
+
+@{
+    ViewData["Title"] = "Players";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> <!-- "Create New" button -->
+</p>
+
+<!-- Rendering the Blazor component for the player grid -->
+<component type="typeof(Players)" render-mode="ServerPrerendered" />

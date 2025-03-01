@@ -1,0 +1,19 @@
+@model IEnumerable<MvcDB.Web.Models.Team>
+
+@{
+    ViewData["Title"] = "Teams";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> <!-- "Create New" button -->
+</p>
+
+<!-- Rendering the Blazor component for the team grid -->
+<component type="typeof(Teams)" render-mode="ServerPrerendered" />
+
+                @* <a asp-action="Edit" asp-route-id="@item.TeamName">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.TeamName">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.TeamName">Delete</a> *@
+
